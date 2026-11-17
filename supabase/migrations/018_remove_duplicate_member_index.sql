@@ -1,0 +1,1 @@
+drop index if exists public.condominium_members_condominium_user_unique;

@@ -1,0 +1,30 @@
+{
+  "name": "condo-ai",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2",
+    "clsx": "^2",
+    "lucide-react": "^0.453.0",
+    "next": "15",
+    "react": "^19",
+    "react-dom": "^19",
+    "react-hook-form": "^7",
+    "recharts": "^2",
+    "zod": "^3"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "autoprefixer": "^10.6.2",
+    "tailwindcss": "^3",
+    "typescript": "^5"
+  }
+}
