@@ -7,6 +7,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
+  const [isAdminLogin, setIsAdminLogin] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -56,7 +57,7 @@ export default function LoginPage() {
       const { error: signInError } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          shouldCreateUser: true,
+          shouldCreateUser: !isAdminLogin,
           emailRedirectTo,
         },
       });
@@ -66,7 +67,11 @@ export default function LoginPage() {
         return;
       }
 
-      setMessage("Enviamos um link de acesso para o seu e-mail.");
+      setMessage(
+        isAdminLogin
+          ? "Se este e-mail tiver uma conta de administrador, enviaremos um link de acesso."
+          : "Enviamos um link de acesso para o seu e-mail."
+      );
     } catch {
       setError("Não foi possível iniciar o acesso. Tente novamente.");
     } finally {
@@ -82,8 +87,28 @@ export default function LoginPage() {
         </p>
         <h1 className="mt-4 text-2xl font-bold text-slate-900">Acessar conta</h1>
         <p className="mt-2 text-sm text-slate-600">
-          Informe seu e-mail para entrar ou iniciar o cadastro do condomínio.
+          {isAdminLogin
+            ? "Acesso para administradores com conta já existente."
+            : "Informe seu e-mail para entrar ou iniciar o cadastro do condomínio."}
         </p>
+
+        <button
+          className="mt-5 text-sm font-semibold text-slate-700 underline underline-offset-4"
+          onClick={() => {
+            setIsAdminLogin((current) => !current);
+            setMessage("");
+            setError("");
+          }}
+          type="button"
+        >
+          {isAdminLogin ? "Voltar ao acesso padrão" : "Entrar como administrador"}
+        </button>
+        {isAdminLogin && (
+          <p className="mt-2 text-xs leading-5 text-slate-500">
+            Este acesso não cria uma conta nem concede permissões. Seu e-mail
+            precisa estar vinculado a um administrador do condomínio.
+          </p>
+        )}
 
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
           <label className="block text-sm font-medium text-slate-700" htmlFor="email">
@@ -103,7 +128,11 @@ export default function LoginPage() {
             disabled={isSubmitting}
             type="submit"
           >
-            {isSubmitting ? "Enviando..." : "Enviar link seguro"}
+            {isSubmitting
+              ? "Enviando..."
+              : isAdminLogin
+                ? "Enviar link de administrador"
+                : "Enviar link seguro"}
           </button>
         </form>
 
