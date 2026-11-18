@@ -3,6 +3,8 @@
 import { FormEvent, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
@@ -10,6 +12,20 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
+    if (siteUrl) {
+      const canonicalOrigin = new URL(siteUrl).origin;
+
+      if (window.location.origin !== canonicalOrigin) {
+        const canonicalLoginUrl = new URL(
+          `${window.location.pathname}${window.location.search}${window.location.hash}`,
+          canonicalOrigin
+        );
+
+        window.location.replace(canonicalLoginUrl);
+        return;
+      }
+    }
+
     const urlError = new URLSearchParams(window.location.search).get("error");
     if (urlError) {
       setError(urlError);
@@ -33,11 +49,15 @@ export default function LoginPage() {
 
     try {
       const supabase = createClient();
+      const emailRedirectTo = siteUrl
+        ? new URL("/auth/callback", siteUrl).toString()
+        : `${window.location.origin}/auth/callback`;
+
       const { error: signInError } = await supabase.auth.signInWithOtp({
         email,
         options: {
           shouldCreateUser: true,
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          emailRedirectTo,
         },
       });
 
